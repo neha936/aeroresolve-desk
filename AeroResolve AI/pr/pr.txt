@@ -1,0 +1,505 @@
+Redesign the existing AeroResolve AI frontend to make it feel like a production-grade autonomous AI Agent Command Center, NOT a normal chatbot.
+
+IMPORTANT:
+- First inspect the existing Frontend code, current components, routes, API services, and backend response shapes.
+- Do not break any existing functionality.
+- Do NOT rewrite the backend, Node API, Python AI service, LangGraph workflow, Gemini integration, database, or policy engine.
+- Reuse the existing APIs and real data.
+- Do not invent fake backend capabilities.
+- Do not expose chain-of-thought or private reasoning. Only show observable agent states, tool executions, decisions, and results.
+- Keep the current authentication and routing system.
+- Use JavaScript/React/Vite as already configured.
+- Keep the existing design language but upgrade it significantly.
+
+GOAL:
+The application should immediately communicate:
+"An AI agent is actively investigating and resolving an airline disruption using tools and policies."
+
+The Chat UI should become secondary. The Agent execution, tools, case context, decision, action, and verification should become the primary experience.
+
+==================================================
+1. AGENT COMMAND CENTER
+==================================================
+
+Redesign the main Agent page into a premium dashboard.
+
+Layout:
+
+LEFT:
+CASE CONTEXT
+
+CENTER:
+AGENT EXECUTION / DECISION
+
+RIGHT:
+AGENT TOOL CENTER
+
+BOTTOM:
+CUSTOMER CHAT + LIVE EXECUTION TIMELINE
+
+Use a dark premium SaaS/AI aesthetic:
+- near-black background
+- glassmorphism panels
+- subtle violet/blue/cyan gradients
+- animated ambient background
+- thin borders
+- soft glows
+- high-quality typography
+- smooth micro-interactions
+- subtle 3D depth
+- responsive layout
+- no excessive flashy animations
+
+==================================================
+2. CASE CONTEXT PANEL
+==================================================
+
+Show the current case as an actual operational case, not just chat information.
+
+Display:
+
+- Customer name
+- PNR
+- Loyalty tier
+- Flight number
+- Origin → Destination
+- Flight status
+- Delay duration
+- Issue type
+- Current resolution status
+
+Example:
+
+CASE #SK4821X
+
+Priya Nair
+Gold Member
+
+SK-204
+DEL → GOI
+
+● CANCELLED
+
+Issue:
+Flight Cancellation
+
+Agent status:
+RESOLUTION READY
+
+Use status-specific visual treatment:
+- cancelled = red
+- delayed = amber
+- resolved = green
+- processing = blue
+
+==================================================
+3. AGENT STATUS HEADER
+==================================================
+
+Create a strong Agent identity.
+
+Example:
+
+✦ AERORESOLVE AI AGENT
+Autonomous Flight Resolution System
+
+● AGENT ONLINE
+
+Show dynamic status:
+
+ANALYZING
+LOADING CONTEXT
+CHECKING POLICY
+SELECTING ACTION
+EXECUTING
+VERIFYING
+COMPLETED
+WAITING FOR CUSTOMER
+
+Do not fake these states. Drive them from actual frontend request lifecycle / returned backend data wherever possible.
+
+==================================================
+4. AGENT STATE MACHINE
+==================================================
+
+Create a visual execution pipeline:
+
+UNDERSTAND
+   ↓
+CONTEXT
+   ↓
+VERIFY
+   ↓
+POLICY
+   ↓
+DECISION
+   ↓
+ACTION
+   ↓
+VERIFY RESULT
+
+Each step should have:
+
+✓ completed
+● currently active
+○ pending
+
+Animate transitions between states.
+
+Do not display internal reasoning.
+Only display safe operational events.
+
+==================================================
+5. AGENT TOOL CENTER
+==================================================
+
+Create a dedicated "AGENT TOOLS" panel.
+
+Group tools visually:
+
+BOOKING TOOLS
+- get_customer
+- get_booking
+
+FLIGHT TOOLS
+- get_flight_status
+
+POLICY TOOLS
+- evaluate_policy
+
+ACTION TOOLS
+- rebook
+- refund
+- meal voucher
+- lounge access
+- hotel support
+
+ESCALATION
+- create_escalation
+
+IMPORTANT:
+Only display tools that actually exist in the current backend/AI-service implementation.
+Do not create fake API calls.
+
+When a real operation is happening, show:
+
+● evaluate_policy
+  Checking eligibility...
+
+Then:
+
+✓ evaluate_policy
+  Policy evaluation completed
+
+Use animated tool cards and status indicators.
+
+==================================================
+6. AGENT EXECUTION TRACE
+==================================================
+
+Add a "LIVE AGENT TRACE" section.
+
+Show observable events such as:
+
+Request received
+PNR identified
+Booking verified
+Flight status retrieved
+Customer context loaded
+Policy evaluated
+Eligible resolution found
+Customer decision received
+Action executed
+Result verified
+
+Example:
+
+23:41:02  ✓ get_booking
+23:41:03  ✓ get_flight_status
+23:41:03  ✓ evaluate_policy
+23:41:04  ● awaiting_customer_decision
+
+Do NOT show chain-of-thought or hidden reasoning.
+
+Add a "View Full Trace" expandable drawer/modal.
+
+==================================================
+7. AGENT DECISION CARD
+==================================================
+
+Make the Agent Decision the visual centerpiece.
+
+Example:
+
+✦ AGENT DECISION
+
+Flight SK-204 was cancelled.
+
+Policy evaluation completed.
+
+2 eligible resolutions found.
+
+[ ✈ REBOOK ]
+[ ₹ REFUND ]
+
+For delay cases, show actual eligible benefits returned by the backend.
+
+For example:
+
+RESOLUTION AVAILABLE
+
+✓ Meal Voucher
+✓ Lounge Access
+✓ Hotel Accommodation
+
+Do not hardcode these outcomes.
+Render the actual backend/AI-service resolution.
+
+==================================================
+8. ACTION EXECUTION UI
+==================================================
+
+When the customer selects an available action, show an execution state.
+
+Example:
+
+⚡ AGENT EXECUTION
+
+✓ Booking verified
+✓ Policy eligibility confirmed
+
+● request_refund
+  Processing action...
+
+○ Verify result
+
+Then:
+
+✓ ACTION COMPLETED
+
+Refund request successfully processed.
+
+The UI must reflect the real API response.
+
+Do not simulate successful actions.
+
+==================================================
+9. ESCALATION EXPERIENCE
+==================================================
+
+Make escalation feel like an important agent capability.
+
+Example:
+
+⚠ SUPERVISOR REVIEW REQUIRED
+
+Agent authority exceeded for this request.
+
+✓ Case verified
+✓ Policy evaluated
+✓ Exception detected
+● create_escalation
+✓ Escalation created
+
+[ VIEW ESCALATION ]
+
+Use the existing escalation API.
+
+If the AI service automatically creates an escalation, clearly surface it in the Agent UI.
+
+==================================================
+10. CUSTOMER CHAT
+==================================================
+
+Keep the chat, but make it secondary.
+
+Place it below the Agent Command Center or inside a collapsible "Customer Conversation" panel.
+
+The chat should feel connected to the agent:
+
+User:
+"My flight is cancelled."
+
+Agent:
+"I've verified your booking and checked the applicable resolution policy."
+
+Then show the Agent execution visually above/beside it.
+
+Do not make the application look like ChatGPT.
+
+==================================================
+11. AGENT ACTIVITY ANIMATION
+==================================================
+
+Add polished micro-interactions:
+
+- tool cards pulse while executing
+- glowing active state
+- timeline progress animation
+- cards slightly elevate on hover
+- subtle 3D tilt where appropriate
+- smooth state transitions
+- animated connection lines between execution steps
+- floating aircraft visual
+- animated flight route where relevant
+
+Respect prefers-reduced-motion.
+
+Avoid excessive animation that hurts usability.
+
+==================================================
+12. DASHBOARD UPGRADE
+==================================================
+
+Also improve the overall Dashboard so it feels like an airline operations AI platform.
+
+Add:
+
+TOP METRICS
+
+Active Cases
+Resolved Cases
+Pending Escalations
+Agent Actions
+
+Then:
+
+LIVE DISRUPTION OVERVIEW
+
+Cancelled Flights
+Delayed Flights
+At-Risk Flights
+
+Then:
+
+RECENT AGENT ACTIVITY
+
+Example:
+
+✓ Case SK4821X resolved
+✓ Lounge entitlement applied
+⚠ WL7742 escalated
+✓ Meal voucher issued
+
+Then:
+
+ACTIVE CASES
+
+Each case should open the Agent Command Center for that case.
+
+Use actual backend data where available.
+If an aggregate metric is not available from the backend, do NOT fabricate it. Either derive it safely from already-loaded data or omit it.
+
+==================================================
+13. PREMIUM VISUAL QUALITY
+==================================================
+
+The result should feel like:
+
+- AI operations dashboard
+- autonomous agent console
+- modern enterprise SaaS
+- airline disruption command center
+
+NOT:
+
+- basic CRUD dashboard
+- generic admin panel
+- ChatGPT clone
+- simple chatbot
+
+Use:
+- glass panels
+- layered depth
+- gradients
+- subtle glow
+- strong hierarchy
+- meaningful whitespace
+- premium icons
+- responsive design
+- skeleton/loading states
+- empty states
+- error states
+
+Do not overuse gradients or huge text.
+
+==================================================
+14. RESPONSIVE DESIGN
+==================================================
+
+Desktop:
+3-column Agent Command Center.
+
+Tablet:
+2-column layout.
+
+Mobile:
+stack:
+1. Agent status
+2. Case context
+3. Agent decision
+4. Tools
+5. Execution trace
+6. Customer chat
+
+Maintain excellent usability on 390px width.
+
+==================================================
+15. FUNCTIONAL REQUIREMENTS
+==================================================
+
+Before changing anything:
+
+1. Inspect existing API services.
+2. Inspect Agent page.
+3. Inspect Dashboard.
+4. Inspect authentication.
+5. Inspect all existing components.
+6. Inspect actual API response structures.
+
+Then implement the UI around the existing architecture.
+
+Do not:
+- create mock agent responses
+- hardcode customer resolutions
+- fake tool execution
+- fake metrics
+- add fake API endpoints
+- expose Gemini API keys
+- expose JWTs
+- modify backend behavior unnecessarily
+
+All displayed resolutions, escalation results, customer information, policy results, and actions must come from the existing working system.
+
+==================================================
+16. FINAL QUALITY CHECK
+==================================================
+
+After implementation:
+
+- run frontend build
+- fix all compile/runtime errors
+- verify routing
+- verify login
+- verify Agent page
+- verify Dashboard
+- verify chat
+- verify real backend connection
+- verify cancellation case
+- verify 4-hour delay case
+- verify 6-hour delay case
+- verify escalation flow
+- check browser console for errors
+- check responsive layout
+
+Most importantly:
+
+The first impression should be:
+
+"THIS IS AN AI AGENT OPERATING AN AIRLINE RESOLUTION WORKFLOW."
+
+Not:
+
+"This is a chatbot with some cards."
+
+Preserve all existing working functionality while making the visual and interaction layer significantly more sophisticated.
