@@ -8,8 +8,14 @@ export const tokenStorage = {
   clear: () => localStorage.removeItem(TOKEN_KEY),
 };
 
+// Check both VITE_API_BASE_URL and VITE_API_URL, fallback to Render backend
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "https://aeroresolve-desk.onrender.com";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+  baseURL: baseURL,
 });
 
 api.interceptors.request.use((config) => {
