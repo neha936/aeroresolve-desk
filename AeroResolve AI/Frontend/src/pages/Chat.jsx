@@ -177,8 +177,25 @@ export default function Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [booking, customer]);
 
-  // ── 3. Core agent chat call ─────────────────────────────────────────────
+  // ── 3. Core agent chat call (UPDATED TO PREVENT 422 ERROR) ──────────────
   async function callAgentChat(text, silent = false) {
+    // Check and fallback for active PNR to ensure payload has valid PNR value
+    const activePnr = pnr || booking?.pnr || pnrStorage.get();
+
+    if (!activePnr) {
+      console.error("Agent Chat Error: PNR is missing!");
+      addTrace("Chat request cancelled: Missing PNR context", "ERROR", "error");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: nextId(),
+          role: "agent",
+          content: "Unable to process chat: Active PNR context is missing. Please select a booking from the dashboard.",
+        },
+      ]);
+      return;
+    }
+
     if (!silent) {
       setMessages((prev) => [...prev, { id: nextId(), role: "user", content: text }]);
     }
@@ -190,9 +207,10 @@ export default function Chat() {
     addTrace(`evaluate_policy(message="${text.substring(0, 40)}...")`, "TOOL", "running");
 
     try {
-      const res = await agentApi.chat(pnr, text, conversationId);
+      // Send verified activePnr to backend endpoint
+      const res = await agentApi.chat(activePnr, text, conversationId);
 
-      const data = res.data;  // axios interceptor unwraps { success, data }
+      const data = res.data; // axios interceptor unwraps { success, data }
 
       setConversationId(data.conversationId);
 
@@ -250,9 +268,6 @@ export default function Chat() {
   }
 
   // ── 4. Customer selects Rebook ──────────────────────────────────────────
-  // Do NOT re-call agentApi.chat() here — the policy engine has no
-  // "user chose rebook" state and would return the same message again.
-  // The action decision is already made; just confirm it directly.
   function handleRebook() {
     if (actionDone || actionInProgress) return;
     setActionInProgress(true);
@@ -267,7 +282,6 @@ export default function Chat() {
       { id: nextId(), role: "user", content: "I'd like to rebook my flight." },
     ]);
 
-    // Simulate network call delay (prototype — no dedicated rebook action endpoint)
     setTimeout(() => {
       markToolDone("rebook");
       setActiveTool(null);
@@ -285,14 +299,13 @@ export default function Chat() {
         {
           id: nextId(),
           role: "agent",
-          content: `Your rebooking request has been confirmed, ${firstName}. The airline will rebook you on the next available DEL → GOI flight within 24 hours. A confirmation will be sent to your registered email.${resolution?.loyalty?.priorityRebooking ? " As a Gold member, your rebooking will be prioritised." : ""}`,
+          content: `Your rebooking request has been confirmed, ${firstName}. The airline will rebook you on the next available flight within 24 hours. A confirmation will be sent to your registered email.${resolution?.loyalty?.priorityRebooking ? " As a Gold member, your rebooking will be prioritised." : ""}`,
         },
       ]);
     }, 1400);
   }
 
   // ── 5. Customer selects Refund ──────────────────────────────────────────
-  // Same reasoning as handleRebook — do NOT call agentApi.chat() again.
   function handleRefund() {
     if (actionDone || actionInProgress) return;
     setActionInProgress(true);
